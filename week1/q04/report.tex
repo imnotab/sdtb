@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{fontspec}
+\setmainfont{WenQuanYi Zen Hei}
+
+\begin{document}
+\title{Tool Report}
+\author{姓名-学号}
+\maketitle
+
+\section{Result}
+
+本文采用的累加公式如式\eqref{eq:sum}所示，可用于计算自然数序列的求和结果。
+\begin{equation}
+\label{eq:sum}
+\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+\end{equation}
+
+实验样本的统计数据如表\ref{tab:sample}所示，包含两组测试的核心指标。
+\begin{table}[htbp]
+    \centering
+    \caption{实验样本数据}
+    \label{tab:sample}
+    \begin{tabular}{|c|c|}
+        \hline
+        样本组 & 数值 \\
+        \hline
+        Group A & 128 \\
+        Group B & 256 \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\end{document}
