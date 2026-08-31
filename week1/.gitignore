@@ -1,0 +1,7 @@
+# LaTeX 临时产物
+*.aux
+*.log
+*.fls
+*.xdv
+*.synctex.gz
+*.out
