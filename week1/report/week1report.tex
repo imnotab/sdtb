@@ -1,0 +1,613 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{fontspec}
+\usepackage{url}
+\usepackage{xurl}
+\setmainfont{SimSun}
+
+\title{系统开发工具基础 第一周实验报告}
+\author{涂睿昕---25020007115}
+\date{}
+
+\begin{document}
+	\maketitle
+	
+	\section{实验概述}
+	本次实验为系统开发工具基础第一周课上实验，实验环境为VirtualBox中的Ubuntu
+	虚拟机。
+    本次完成四项课上实验：Shell文件处理、Shell管道与文本统计、Git制造并解决合并
+	冲突、\LaTeX{}文档编写。
+	实验主要练习Linux Shell命令、脚本编写Git 版本控制分支与冲突处理、
+	\LaTeX{}文档排版，掌握命令行工具链、版本控制的基本流程。
+	
+	\section{课上实验题目}
+	\subsection{q01：含空格文件名的批量整理}
+	\subsubsection{题目要求}
+	在 q01 目录下完成目录创建、带空格文件生成、查看绝对路径、复制文件并保留目录结构、
+	设置文件与目录权限，生成 inventory.txt 记录文件相对路径与字节大小。
+	
+	\subsubsection{实现过程与关键命令}
+	\begin{verbatim}
+		mkdir -p ~/sdt-course/week1/q0{1..4}
+		cd ~/sdt-course/week1/q01
+		mkdir -p input/docs input/tmp
+		printf "alpha\nbeta\n" > "input/docs/notes one.txt"
+		echo "hidden" > input/docs/.secret.txt
+		touch input/tmp/empty.txt
+		printf "2026-08-24 system start\n2026-08-24 init finished\n" > input/run.log
+		pwd
+		ls -laR input/
+		mkdir -p work/25020007115
+		cd input
+		find . -name "*.txt" -exec cp --parents {} "../work/25020007115/" \;
+		cd ..
+		ls -laR work/25020007115/
+		cd "work/25020007115"
+		find . -type d -exec chmod 750 {} \;
+		find . -type f -exec chmod 640 {} \;
+		cd ../..
+		cd "work/25020007115"
+		find . -type f -printf "%p %s\n" > inventory.txt
+		cat inventory.txt
+		cd ../..
+	\end{verbatim}
+	
+	\subsubsection{运行结果}
+	\begin{verbatim}
+		/home/lin/sdt-course/week1/q01
+		
+		总计 20
+		drwxrwxr-x 4 lin lin 4096  8月 24 16:37 .
+		drwxrwxr-x 3 lin lin 4096  8月 24 16:33 ..
+		drwxrwxr-x 2 lin lin 4096  8月 24 16:35 docs
+		-rw-rw-r-- 1 lin lin   49  8月 24 16:37 run.log
+		drwxrwxr-x 2 lin lin 4096  8月 24 16:36 tmp
+		
+		input/docs:
+		总计 16
+		drwxrwxr-x 2 lin lin 4096  8月 24 16:35 .
+		drwxrwxr-x 4 lin lin 4096  8月 24 16:37 ..
+		-rw-rw-r-- 1 lin lin   11  8月 24 16:34 'notes one.txt'
+		-rw-rw-r-- 1 lin lin    7  8月 24 16:35 .secret.txt
+		
+		input/tmp:
+		总计 8
+		drwxrwxr-x 2 lin lin 4096  8月 24 16:36 .
+		drwxrwxr-x 4 lin lin 4096  8月 24 16:37 ..
+		-rw-rw-r-- 1 lin lin    0  8月 24 16:36 empty.txt
+		
+		work/25020007115/:
+		docs  tmp
+		
+		work/25020007115/docs:
+		'notes one.txt'
+		
+		work/25020007115/tmp:
+		empty.txt
+		
+		./inventory.txt 0
+		./tmp/empty.txt 0
+		./docs/notes one.txt 11
+		./docs/.secret.txt 7
+	\end{verbatim}
+
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q1p1.png}
+		\caption{q01运行截图1}
+		\label{fig:q01_1}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q1p2.png}
+		\caption{q01运行截图2}
+		\label{fig:q01_2}
+	\end{figure}
+	
+	\subsubsection{遇到的问题与解决}
+	\begin{itemize}
+		\item \textbf{问题1：带空格的文件名操作报错}
+		\\ 直接使用命令操作带空格的文件名时，系统会将空格识别为参数分隔符，提示找不到文件。
+		\\ \textbf{解决：} 使用双引号包裹包含空格的文件名，或通过 \texttt{find -exec} 传递文件路径，确保空格被正确识别。
+		\item \textbf{问题2：初始查看目录时未显示隐藏文件}
+		\\ 直接使用 \texttt{ls} 命令无法显示以 \texttt{.} 开头的隐藏文件 \texttt{.secret.txt}。
+		\\ \textbf{解决：} 加入 \texttt{-a} 参数，使用 \texttt{ls -la} 查看目录下所有文件（含隐藏文件）。
+		\item \textbf{问题3：复制文件时丢失目录结构}
+		\\ 直接使用 \texttt{cp} 批量复制时，所有文件被平铺到目标目录，丢失了原有的 \texttt{docs/}、\texttt{tmp/} 层级。
+		\\ \textbf{解决：} 给 \texttt{cp} 加上 \texttt{--parents} 参数，保留文件的相对目录结构。
+	\end{itemize}
+	
+	\subsection{q02：随机访问日志统计}
+	\subsubsection{题目要求}
+	编写脚本 \texttt{analyze.sh}，读取CSV访问日志，统计5xx状态码最多的两条path，输出全部
+	数据的平均延迟（保留两位小数）；文件不存在时向标准错误输出报错并返回非零退出码。
+	
+	\subsubsection{测试数据}
+	本次统计使用的\texttt{access.csv}日志数据内容如下：
+	\begin{verbatim}
+		timestamp,user,path,status,latency_ms
+		09:00:01,alice,/api/users,200,120
+		09:00:02,bob,/api/orders,500,310
+		09:00:03,alice,/api/users,503,180
+		09:00:04,carol,/login,500,90
+		09:00:05,bob,/api/orders,502,260
+		09:00:06,dave,/health,200,20
+		09:00:07,alice,/api/orders,500,420
+		09:00:08,carol,/api/users,500,150
+	\end{verbatim}
+	
+	\subsubsection{实现过程}
+	脚本 \texttt{analyze.sh} 完整代码：
+	\begin{verbatim}
+		cat > analyze.sh << 'EOF'
+		#!/usr/bin/env bash
+		
+		# 检查参数
+		if [ $# -ne 1 ]; then
+		echo "Usage: $0 <csv_file_path>" >&2
+		exit 1
+		fi
+		
+		FILE="$1"
+		
+		# 文件不存在时输出错误到stderr，返回非零退出码
+		if [ ! -f "$FILE" ]; then
+		echo "Error: file '$FILE' not found." >&2
+		exit 2
+		fi
+		
+		echo "=== Top 2 paths with most 5xx requests ==="
+		# 过滤5xx状态，按path统计次数，降序排列，次数相同按path字典序
+		awk -F',' 'NR>1 && $4 ~ /^5[0-9]{2}$/ {cnt[$3]++}
+		END {
+			for (p in cnt) print cnt[p], p
+		}' "$FILE" | sort -k1,1nr -k2,2 | head -n 2
+		
+		echo ""
+		echo "=== Average latency (ms) ==="
+		# 跳过表头，计算平均延迟，保留两位小数
+		awk -F',' 'NR>1 {sum += $5; n++}
+		END {
+			if (n > 0) printf "%.2f\n", sum / n
+		}' "$FILE"
+		EOF
+	\end{verbatim}
+	
+	\subsubsection{运行结果}
+	1. 传入正常 \texttt{access.csv} 的输出：
+	\begin{verbatim}
+		=== Top 2 paths with most 5xx requests ===
+		3 /api/orders
+		2 /api/users
+		
+		=== Average latency (ms) ===
+		193.75
+	\end{verbatim}
+	
+	2. 传入不存在文件的错误输出：
+	\begin{verbatim}
+		Error: file 'not_exist.csv' not found.
+		Exit code: 2
+	\end{verbatim}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q2p1.png}
+		\caption{q02运行截图1}
+		\label{fig:q02_1}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q2p2.png}
+		\caption{q02运行截图2}
+		\label{fig:q02_2}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q2p3.png}
+		\caption{q02运行截图3}
+		\label{fig:q02_3}
+	\end{figure}
+	
+	\subsubsection{遇到的问题与解决}
+	\begin{itemize}
+		\item \textbf{问题1：统计结果包含表头行数据}
+		\\ 初始编写脚本时未跳过表头，导致第一行的字段名被当作数据参与统计，结果错误。
+		\\ \textbf{解决：} 在 \texttt{awk} 中加入 \texttt{NR>1} 条件，跳过第一行表头，只处理数据行。
+		\item \textbf{问题2：次数相同时未按路径字典序排序}
+		\\ 仅按出现次数降序排序时，次数相同的路径顺序随机，不符合题目要求。
+		\\ \textbf{解决：} \texttt{sort} 命令设置多字段排序，先按次数字段降序，再按路径字段升序（字典序）。
+		\item \textbf{问题3：错误信息输出到标准输出}
+		\\ 初始的错误提示直接用 \texttt{echo} 输出，默认流向标准输出，不符合输出到 stderr 的要求。
+		\\ \textbf{解决：} 在 echo 后加上 \texttt{>\&2}，将错误信息重定向到标准错误流。
+	\end{itemize}
+	
+	\subsection{q03：制造、解决并解释一次合并冲突}
+	\subsubsection{题目要求}
+	初始化git仓库，在main分支创建config.txt；
+	创建feature‑a、feature‑b两个分支分别修改配置；
+	回到main先合并feature‑a，再合并feature‑b；解决冲突保留 \texttt{mode=safe}，增加一行 \texttt{note=reviewed}，
+	最后查看分支提交图。
+	
+	
+	
+	\subsubsection{实现过程}
+	\begin{verbatim}
+		cd ~/sdt-course/week1/q03
+		git init
+		git branch -M main
+		echo "mode=normal" > config.txt
+		git add config.txt
+		git commit -m "init: add default config"
+		git checkout -b feature-a
+		echo "mode=safe" > config.txt
+		git add config.txt
+		git commit -m "feat: set mode to safe"
+		git checkout main      
+		git checkout -b feature-b
+		echo "mode=fast" > config.txt
+		git add config.txt
+		git commit -m "feat: set mode to fast"
+		git checkout main
+		git merge feature-a -m "merge feature-a"  # 第一次合并无冲突
+		git merge feature-b                       # 第二次合并触发冲突
+		git add config.txt
+		git commit -m "resolve conflict: keep safe mode, add review note"
+		git log --all --graph --decorate --oneline
+	\end{verbatim}
+	
+	\subsubsection{运行结果}
+	执行 \texttt{git log --all --graph --decorate --oneline} 的输出：
+	\begin{verbatim}
+		*  9b8fbf8 (HEAD -> main) resolve conflict: keep safe mode, add review note
+		|\
+		| * db0a511 (feature-b) feat: set mode to fast
+		* | c2b9999 (feature-a) feat: set mode to safe
+		|/
+		* 9a6f312 init: add default config
+	\end{verbatim}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q3p1.png}
+		\caption{q03运行截图1}
+		\label{fig:q03_1}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q3p2.png}
+		\caption{q03运行截图2}
+		\label{fig:q03_2}
+	\end{figure}
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q3p3.png}
+		\caption{q03运行截图3}
+		\label{fig:q03_3}
+	\end{figure}
+	
+	\subsubsection{遇到的问题与解决}
+	\begin{itemize}
+		\item \textbf{问题1：子目录嵌套Git仓库，造成仓库混乱}
+		\\ 曾经在上一级目录误执行\texttt{git init}，q03目录内部嵌套了外层git仓库，执行分支、合并
+		命令作用于上层仓库，实验目录内文件不受版本控制。
+		\\ \textbf{解决：} 删除错误生成的外层\texttt{.git}文件夹，进入q03目录内部再执行\texttt{git init}，保证仓库
+		初始化在实验目录根目录。
+		\item \textbf{问题2：快进合并时 -m 参数被忽略，没有生成合并提交}
+		\\ 执行\texttt{git merge feature-a -m "merge feature-a"}，Git提示Fast‑forward，指定的
+		合并提交信息参数失效。
+		\\ \textbf{解决：} 快进合并是Git正常行为，不会新建合并节点，无需额外处理，直接继续后续
+		分支操作。
+		\item \textbf{问题3：合并产生冲突，编辑冲突文件时没有删除冲突标记}
+		\\ 合并\texttt{feature‑b}出现冲突，修改内容后忘记删掉 \texttt{<<<<<<<}、\texttt{=======}、\texttt{>>>>>>>}标记，导
+		致配置文件混入git冲突符号。
+		\\ \textbf{解决：} 编辑\texttt{config.txt}，完整删除全部冲突分隔标记，保留\texttt{mode=safe}，新增一行
+		\texttt{note=reviewed}，保存文件。
+		\item \textbf{问题4：解决冲突后忘记add，git仍处于冲突状态}
+		\\ 修改完冲突文件直接执行commit，git提示仍有未解决冲突，无法提交。
+		\\ \textbf{解决：} 修改完成后先执行\texttt{git add config.txt}把修改加入暂存区，再执行\texttt{git commit}完成合并提交。
+		\item \textbf{问题5：无法确认冲突是否真正解决，历史看不清分支走向}
+		\\ 完成合并之后，不清楚分支分叉、合并流程是否满足题目要求。
+		\\ \textbf{解决：} 使用\texttt{git log --all --graph --decorate --oneline}查看图形化提交历史，核对
+		分支节点结构。
+	\end{itemize}
+	
+	\subsection{q04：修复并构建一页技术说明}
+	\subsubsection{题目要求}
+	\begin{verbatim}
+		编写LaTeX文档，添加带label的编号公式并在正文引用；添加2行2列带caption与label的表格并在正文引用；编译生成PDF，保证交叉引用不出现??。
+	\end{verbatim}
+	
+	\subsubsection{实现过程}
+	核心代码片段：
+	\begin{verbatim}
+		\documentclass{article}
+		\usepackage{amsmath}
+		\usepackage{caption}
+		\usepackage{fontspec}
+		\setmainfont{WenQuanYi Zen Hei}
+		
+		\begin{document}
+			\title{Tool Report}
+			\author{涂睿昕-25020007115}
+			\maketitle
+			
+			\section{Result}
+			
+			本文采用的累加公式如式\eqref{eq:sum}所示，可用于计算自然数序列的求和结果。
+			\begin{equation}
+				\label{eq:sum}
+				\sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+			\end{equation}
+			
+			实验样本的统计数据如表\ref{tab:sample}所示，包含两组测试的核心指标。
+			\begin{table}[htbp]
+				\centering
+				\caption{实验样本数据}
+				\label{tab:sample}
+				\begin{tabular}{|c|c|}
+					\hline
+					样本组 & 数值 \\
+					\hline
+					Group A & 128 \\
+					Group B & 256 \\
+					\hline
+				\end{tabular}
+			\end{table}
+			
+		\end{document}
+	\end{verbatim}
+	
+	\subsubsection{运行结果}
+	编译成功得到 report.pdf，公式、表格正常渲染，交叉引用生效。
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{q4p1.png}
+		\caption{q04生成pdf效果截图}
+		\label{fig:q04_1}
+	\end{figure}
+	
+	\subsubsection{遇到的问题与解决}
+	\begin{itemize}
+		\item \textbf{问题1：中文显示为方框乱码}
+		\\ 使用默认 pdflatex 引擎编译时，中文字符全部显示为空白方框。
+		\\ \textbf{解决：} 引入 \texttt{fontspec} 宏包，指定系统中文字体，切换为 XeLaTeX 引擎编译。
+		\item \textbf{问题2：公式和表格引用显示为 ??}
+		\\ 第一次编译后，正文里的交叉引用位置显示为 \texttt{??}，没有生成正确编号。
+		\\ \textbf{解决：} 执行第二次编译，LaTeX 会读取上一次生成的引用信息，生成正确的编号。
+	\end{itemize}
+	
+	\section{课后练习}
+	\begin{enumerate}
+		\item 实例1：运行 ls -l / 并观察输出。\\
+		命令：\texttt{ls -l /}\\
+		输出：
+		\begin{verbatim}
+			总计 3990620
+			lrwxrwxrwx   1 root root          7  4月 22  2024 bin -> usr/bin
+			drwxr-xr-x   2 root root       4096  2月 26  2024 bin.usr-is-merged
+			drwxr-xr-x   4 root root       4096  8月 30 22:36 boot
+			dr-xr-xr-x   2 root root       4096  8月  6  2025 cdrom
+			drwxr-xr-x  19 root root       4320  8月 31 20:56 dev
+			drwxr-xr-x 145 root root      12288  9月  1 16:02 etc
+			drwxr-xr-x   3 root root       4096 10月 22  2025 home
+			lrwxrwxrwx   1 root root          7  4月 22  2024 lib -> usr/lib
+			lrwxrwxrwx   1 root root          9  4月 22  2024 lib64 -> usr/lib64
+			drwxr-xr-x   2 root root       4096  4月  8  2024 lib.usr-is-merged
+			drwx------   2 root root      16384 10月 22  2025 lost+found
+			drwxr-xr-x   3 root root       4096 10月 23  2025 media
+			drwxr-xr-x   2 root root       4096  8月  6  2025 mnt
+			drwxr-xr-x   4 root root       4096  8月 27 18:11 opt
+			dr-xr-xr-x 295 root root          0  8月 31 20:56 proc
+			drwx------   6 root root       4096  8月 27 18:07 root
+			drwxr-xr-x  36 root root        960  9月  1 16:02 run
+			lrwxrwxrwx   1 root root          8  4月 22  2024 sbin -> usr/sbin
+			drwxr-xr-x   2 root root       4096  3月 31  2024 sbin.usr-is-merged
+			drwxr-xr-x  17 root root       4096  8月 31 16:16 snap
+			drwxr-xr-x   2 root root       4096  8月  6  2025 srv
+			-rw-------   1 root root 4086300672 10月 22  2025 swap.img
+			dr-xr-xr-x  13 root root          0  8月 31 20:56 sys
+			drwxrwxrwt  18 root root       4096  9月  1 21:14 tmp
+			drwxr-xr-x  12 root root       4096  8月  6  2025 usr
+			drwxr-xr-x  14 root root       4096 10月 22  2025 var
+		\end{verbatim}
+		
+		\item 实例2：写一条命令，输出一个同时包含字面量\$ 、! 和换行符的字符串。\\
+		命令：\texttt{echo \$'dollar sign: \$ \textbackslash nexclamation mark: !'
+			dollar sign: \$ }\\
+		输出：\texttt{dollar sign: \$ 
+			exclamation mark: !}
+		
+        \item 实例3：\$? 保存上一条命令的退出状态（0 表示成功）。\&\& 仅在前一条成功时执行后一条；|| 仅在前一条失败时执行后一条。写一个一行命令：仅当 /tmp/mydir 不存在时才创建它。\\
+    	命令：\texttt{[ ! -d "/tmp/mydir" ] \&\& mkdir /tmp/mydir}\\
+	    输出：\texttt{无}
+	    
+	    \item 实例4：使用管道找出你「home 目录」中最常见的 5 种文件扩展名。\\
+	    命令：\texttt{find ~ -maxdepth 2 -type f | sed -E 's/.*\textbackslash.([\textasciicircum.]+)\textbackslash\$/\textbackslash1/' | grep -v '/' | sort | uniq -c | sort -nr | head -5}\\
+	    输出：
+	    \begin{verbatim}
+	    	8 c
+	    	7 pid
+	    	6 go
+	    	4 utf8
+	    	3 py
+	    \end{verbatim}
+	    
+	    \item 实例5：xargs 会把 stdin 的每一行转换为命令参数。结合 find 和 xargs（不要用 find -exec），找出目录中所有 .sh 文件，并用 wc -l 统计每个文件行数。\\
+	    命令：\texttt{find . -type f -name "*.sh" -print0 | xargs -0 wc -l}\\
+	    输出：
+	    \begin{verbatim}
+	    	23 ./.local/share/Trash/files/analyze.sh
+	    	8 ./sdt-course/week2/q05/worker.sh
+	    	30 ./sdt-course/week1/q02/analyze.sh
+	    	14 ./.vscode/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/libs
+	    	/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/compile_mac.sh
+	    	11 ./.vscode/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/libs
+	    	/debugpy/_vendored/pydevd/pydevd_attach_to_process/linux_and_mac/compile_linux.sh
+	    	86 总计
+	    \end{verbatim}
+	    
+	    \item 实例6：用 curl 获取示例数据 https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json，再用 jq 提取 version 大于 6 的人员姓名。\\
+	    命令：
+	    \begin{verbatim}
+	    	sudo apt install curl
+	    	curl -s https://microsoftedge.github.io/Demos/json-dummy-data/64KB.json | jq
+	    	 '.[] | select(.version > 6) | .name'
+	    \end{verbatim}
+	    输出：\begin{verbatim}
+	    	"Adeel Solangi"
+	    	"Aamir Solangi"
+	    	"Adil Eli"
+	    	"Adil Abro"
+	    	"Antía Sixirei"
+	    	"Aygul Mutellip"
+	    	"Celtia Anes"
+	    	"George Mifsud"
+	    	"Dialè Meso"
+	    	"Doreen Bartolo"
+	    	"Ali Ayaz"
+	    	"Guzelnur Polat"
+	    	"John Falzon"
+	    	"Marcos Amboade"
+	    	"Shafqat Memon"
+	    	"Meladi Papo"
+	    	"Sabela Veloso"
+	    	"Madule Ledimo"
+	    	"Philip Camilleri"
+	    	"Hunadi Makgatho"
+	    	"Charmaine Abela"
+	    	"Tumelò Letamo"
+	    	"Tegra Núnez"
+	    	"Dilnur Qeyser"
+	    	"Iago Peirallo"
+	    	"Josephine Balzan"
+	    	"Mmathabò Mojapelo"
+	    	"Kgabo Lerumo"
+	    	"Lawrence Scicluna"
+	    	"Joseph Grech"
+	    	"Lesetja Theko"
+	    	"Martiño Arxíz"
+	    	"Malehumò Ledwaba"
+	    	"Lajwanti Kumari"
+	    	"Maria Sammut"
+	    	"Matome Molamo"
+	    	"Noa Ervello"
+	    	"sayama Amir"
+	    	"Mariña Quintá"
+	    	"Memet Tursun"
+	    	"Rashid Rajput"
+	    	"Nicholas Micallef"
+	    	"Peter Zammit"
+	    	"Maname Mohlare"
+	    	"Tshepè Mobu"
+	    	"Monica Lohana"
+	    	"Joanne Scerri"
+	    	"Ratanang Maphutha"
+	    	"Thobile Mbele"
+	    	"Kristján Kristjánsson"
+	    	"Stefán Stefánsson"
+	    	"Preeti Rajdan"
+	    	"Sanjay Trivedi"
+	    	"Damir Benic"
+	    	"Sigrún Kristjánsdóttir"
+	    	"Rajesh Santoshi"
+	    	"Mxolisi Mhlongo"
+	    	"Monty Dubey"
+	    	"Richa Choukse"
+	    	"Ingibjörg Ólafsdóttir"
+	    	"Mogorosi Bakwena"
+	    	"Ronak Gupta"
+	    	"Chetana Hegde"
+	    	"Mohan Pandey"
+	    	"Haris Osmanovic"
+	    	"Kenosi Kwenaemang"
+	    	"Adnan Spahic"
+	    	"Kabelo Morwe"
+	    	"Einar Einarsson"
+	    	"Sigríður Einarsdóttir"
+	    	"Sonu Jain"
+	    	"Boitumelo Ngwako"
+	    	"Modise Tau"
+	    	"Gunnar Gunnarsson"
+	    	"Kgosietsile Bogatsu"
+	    	"Monika Nayak"
+	    	"Lucky Shastry"
+	    	"Raju Rathore"
+	    	"Meenakshi Benjaree"
+	    	"Samir Simic"
+	    	"Prashant Chourey"
+	    	"Prakash Malviya"
+	    	"Ivana Kalic"
+	    	"Denis Terzic"
+	    	"Bukhosi Bhengu"
+	    	"Siyabonga Sithole"
+	    	"Rohini Vasav"
+	    	"Sunil Kapoor"
+	    	"Zamokuhle Zulu"
+	    \end{verbatim}
+	    
+	    \item 实例7：请写一个 awk 命令：只输出第二列大于 100 的行，并交换第一列和第三列。\\
+	    命令：\texttt{printf 'a 50 x\textbackslash nb 150 y\textbackslash nc 200 z\textbackslash n' | awk '\$2>100 {print \$3,\$2,\$1}'}\\
+	    输出：\texttt{y 150 b
+	    	z 200 c}
+	    
+	    \item 实例8：写一条命令，把文件复制为带当天日期的备份文件名。\\
+	    命令：\texttt{cp test.txt test\_\$(date +\%Y-\%m-\%d).txt}\\
+	    输出：\texttt{生成test\_2026-09-01.txt}
+	    
+	    \item 实例9：在命令 find ~/Downloads -type f -name "*.zip" -mtime +30 中，*.zip 是一个 「glob」。什么是 glob ？新建一个测试目录并创建一些文件，试试 ls *.txt 、ls file?.txt 、ls {a,b,c}.txt 等模式。\\
+	    命令：
+	    \begin{verbatim}
+	        mkdir -p ~/globtest && cd ~/globtest
+	        touch file1.txt file2.txt filea.txt fileb.txt filec.txt
+	        ls *.txt
+	        ls file?.txt
+	        ls file{a,b,c}.txt
+    	\end{verbatim}
+	    输出：
+	    \begin{verbatim}
+	        file1.txt  file2.txt  filea.txt  fileb.txt  filec.txt
+	        file1.txt  file2.txt  filea.txt  fileb.txt  filec.txt
+	        filea.txt  fileb.txt  filec.txt
+	    \end{verbatim}
+	    
+	    \item 实例10：确认当前 Shell 是否合适，可运行 echo \$SHELL；若输出类似 /bin/bash 或 /usr/bin/zsh ，就说明没问题。\\
+	    命令：\texttt{echo \$SHELL}\\
+	    输出：\texttt{/bin/bash}
+	\end{enumerate}
+	
+	\section{解题感悟}
+	通过第一周的实验，我熟悉了Ubuntu Shell基础命令，学会处理
+	含空格文件名、管道工具 \texttt{awk sort head} 等文本处理工具，能够编写
+	简单shell脚本完成统计任务。
+	
+	在Git版本控制部分，理解了分支创建、切换、合并操作，实际体验了合并冲突的产生
+	过程以及手动解决冲突的流程，认识到版本控制不应当一次性大批量提交代码。
+		
+	在LaTeX部分，体会到不同编译引擎之间的差异，pdflatex对中文支持有限，xelatex需要配置
+	中文字体。宏包缺失、字体缺失、拼写错误都会直接导致编译失败，排错需要仔细阅读日志输出。
+		
+	实验过程也体会到课程强调的“可复现、可协作”，所有操作尽量使用命令行完成，每完成
+	一道题目进行一次git提交，保留完整的版本历史。
+	
+	
+	\section{代码仓库提交记录}
+	GitHub仓库链接：\url{https://github.com/imnotab/sdtb/tree/main}
+	
+	提交历史截图：
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\textwidth]{week1commit.png}
+		\caption{项目commit历史记录}
+	\end{figure}
+	
+\end{document}
