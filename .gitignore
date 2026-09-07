@@ -1,0 +1,25 @@
+# Python 虚拟环境
+venv/
+.env/
+.venv/
+
+# Python 编译缓存
+__pycache__/
+*.py[cod]
+*$py.class
+
+# LaTeX 编译副产品
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# 系统杂项
+.DS_Store
+Thumbs.db
+
+# 编辑器临时文件
+*~
+\#*\#
