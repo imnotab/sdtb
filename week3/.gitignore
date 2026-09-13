@@ -1,0 +1,15 @@
+# 虚拟环境
+*/venv/
+myvenv/
+build‑venv/
+pip‑venv/
+
+# python缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# build产物
+dist/
+build/
+*.whl

@@ -1,0 +1,8 @@
+diff --git a/week3/homework/ex10_git_diff/demo.txt b/week3/homework/ex10_git_diff/demo.txt
+new file mode 100644
+index 0000000..4d70259
+--- /dev/null
++++ b/week3/homework/ex10_git_diff/demo.txt
+@@ -0,0 +1,2 @@
++hello world
++modified line

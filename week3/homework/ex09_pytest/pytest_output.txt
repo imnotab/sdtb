@@ -1,0 +1,10 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/lin/sdt-course/week3/homework/ex09_pytest
+collecting ... collected 2 items
+
+test_add.py::test_add1 PASSED                                            [ 50%]
+test_add.py::test_add2 PASSED                                            [100%]
+
+============================== 2 passed in 0.00s ===============================

@@ -1,0 +1,10 @@
+.:
+总计 4
+-rw-r----- 1 lin lin    0  9月 13 22:46 a.txt
+-rw-r----- 1 lin lin    0  9月 13 22:46 b.txt
+-rw-rw-r-- 1 lin lin    0  9月 13 22:47 permission_check.txt
+drwxr-x--- 2 lin lin 4096  9月 13 22:46 subdir
+
+./subdir:
+总计 0
+-rw-r----- 1 lin lin 0  9月 13 22:46 c.txt
