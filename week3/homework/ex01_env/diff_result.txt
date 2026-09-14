@@ -1,0 +1,10 @@
+25a26
+> VIRTUAL_ENV=/home/lin/sdt-course/week3/homework/ex01_env/myvenv
+42a44
+> VIRTUAL_ENV_PROMPT=(myvenv) 
+43a46
+> PS1=(myvenv) \[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ 
+46c49
+< PATH=/home/lin/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/lin/go/bin
+---
+> PATH=/home/lin/sdt-course/week3/homework/ex01_env/myvenv/bin:/home/lin/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/lin/go/bin

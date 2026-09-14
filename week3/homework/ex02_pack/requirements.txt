@@ -1,0 +1,4 @@
+build==1.6.1
+demo-hw @ file:///home/lin/sdt-course/week3/homework/ex02_pack/dist/demo_hw-0.1.0-py3-none-any.whl#sha256=ee6230c20e356e9fb93da1f13fdbdd1f7215f53bf32ade370bfbdb234a68da01
+packaging==26.3
+pyproject_hooks==1.2.0
